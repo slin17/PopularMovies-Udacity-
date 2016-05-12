@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/poster_gridview"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:numColumns="auto_fit"
-          android:gravity="center"
-    />
+<com.example.android.popularmovies.AutofitRecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/movie_posters_recyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"/>
