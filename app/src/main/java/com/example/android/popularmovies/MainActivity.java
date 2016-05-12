@@ -122,6 +122,7 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onBindViewHolder(MovieViewHolder holder, int position) {
+                //binding viewholders to the data from the model layer
                 String url = mMovieList.get(position);
 
                 // This is how we use Picasso to load images from the internet.
