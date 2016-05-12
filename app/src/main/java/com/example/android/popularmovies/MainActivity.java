@@ -4,18 +4,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -57,10 +60,13 @@ public class MainActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        ImageListAdapter mPosterAdapter;
+        private MoviesAdapter mPosterAdapter;
+        private RecyclerView mRecyclerView;
+        private AutofitRecyclerView mAutofitRecyclerView;
 
         public PlaceholderFragment() {
         }
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,123 +77,123 @@ public class MainActivity extends ActionBarActivity {
                     "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
                     "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
                     "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                    "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                    "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                    "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                    "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                    "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
+                    "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
                     "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"
 
             };
-            mPosterAdapter = new ImageListAdapter(getActivity().getApplicationContext(),testPosters);
-            GridView gridView = (GridView) rootView.findViewById(R.id.poster_gridview);
-            gridView.setAdapter(mPosterAdapter);
 
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View v,
-                                        int position, long id) {
-                    Toast.makeText(getActivity(), "" + position,
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-
+            mPosterAdapter = new MoviesAdapter(getActivity().getApplicationContext(),testPosters);
+            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.movie_posters_recyclerView);
+            mRecyclerView.setLayoutManager(new GridAutofitLayoutManager(getActivity().getApplicationContext(),500));
+            mRecyclerView.setAdapter(mPosterAdapter);
             return rootView;
         }
 
-        public class ImageListAdapter extends ArrayAdapter {
-            private Context context;
-            private LayoutInflater inflater;
-
-            private String[] imageUrls;
-
-            public ImageListAdapter(Context context, String[] imageUrls) {
-                super(context, R.layout.gridview_item_image, imageUrls);
-
-                this.context = context;
-                this.imageUrls = imageUrls;
-
-                inflater = LayoutInflater.from(context);
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = inflater.inflate(R.layout.gridview_item_image, parent, false);
-                }
-
-                Picasso
-                        .with(context)
-                        .load(imageUrls[position])
-                        .fit().centerInside()
-                        .into((ImageView) convertView);
-
-                return convertView;
+        public static class MovieViewHolder extends RecyclerView.ViewHolder {
+            public ImageView imageView;
+            public MovieViewHolder(View itemView) {
+                super(itemView);
+                imageView = (ImageView) itemView.findViewById(R.id.movie_posters_imageView);
             }
         }
 
-        /*
-        public class ImageAdapter extends BaseAdapter {
-            //from https://github.com/square/picasso/blob/master/picasso-sample/src/main/java/com/example/picasso/SampleGridViewAdapter.java
-            private final Context mContext;
-            private final List<String> urls;
+        public static class MoviesAdapter extends RecyclerView.Adapter<MovieViewHolder>
+        {
+            private List<String> mMovieList;
+            private LayoutInflater mInflater;
+            private Context mContext;
 
-            public ImageAdapter(Context context, String[] imageUrls) {
+            public MoviesAdapter(Context context, String[] imageUrls) {
                 this.mContext = context;
-                this.urls = new ArrayList<String>(Arrays.asList(imageUrls));
+                this.mInflater = LayoutInflater.from(context);
+                this.mMovieList = new ArrayList<String>(Arrays.asList(imageUrls));
             }
 
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                //SquaredImageView view = (SquaredImageView) convertView;
-                ImageView view = (ImageView) convertView;
-                if (view == null) {
-                    //view = new SquaredImageView(mContext);
-                    //view.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = mInflater.inflate(R.layout.gridview_item_image, parent, false);
+                return new MovieViewHolder(view);
+            }
+
+            @Override
+            public void onBindViewHolder(MovieViewHolder holder, int position) {
+                String url = mMovieList.get(position);
+
+                // This is how we use Picasso to load images from the internet.
+                Picasso.with(mContext)
+                        .load(url)
+                        .placeholder(R.color.colorAccent)
+                        .into(holder.imageView);
+            }
+
+            @Override
+            public int getItemCount()
+            {
+                return (mMovieList == null) ? 0 : mMovieList.size();
+            }
+
+            public void setMovieList(List<String> movieList) {
+                this.mMovieList.clear();
+                this.mMovieList.addAll(movieList);
+                // The adapter needs to know that the data has changed. If we don't call this, app will crash.
+                notifyDataSetChanged();
+            }
+        }
+
+        public static class GridAutofitLayoutManager extends GridLayoutManager {
+
+            private int mColumnWidth;
+            private boolean mColumnWidthChanged = true;
+
+            public GridAutofitLayoutManager(Context context, int columnWidth) {
+                super(context, 1);
+                setColumnWidth(checkedColumnWidth(context, columnWidth));
+            }
+
+            public GridAutofitLayoutManager(Context context, int columnWidth, int orientation, boolean reverseLayout) {
+    /* Initially set spanCount to 1, will be changed automatically later. */
+                super(context, 1, orientation, reverseLayout);
+                setColumnWidth(checkedColumnWidth(context, columnWidth));
+            }
+
+            private int checkedColumnWidth(Context context, int columnWidth) {
+                if (columnWidth <= 0) {
+        /* Set default columnWidth value (48dp here). It is better to move this constant
+        to static constant on top, but we need context to convert it to dp, so can't really
+        do so. */
+                    columnWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48,
+                            context.getResources().getDisplayMetrics());
                 }
+                return columnWidth;
+            }
 
-                String url = getItem(position);
-
-                // Trigger the download of the URL asynchronously into the image view.
-                Picasso.with(mContext) //
-                        .load(url) //
-                        .fit() //
-                        .centerInside()
-                        .tag(mContext) //
-                        .into(view);
-
-                return view;
+            public void setColumnWidth(int newColumnWidth) {
+                if (newColumnWidth > 0 && newColumnWidth != mColumnWidth) {
+                    mColumnWidth = newColumnWidth;
+                    mColumnWidthChanged = true;
+                }
             }
 
             @Override
-            public int getCount() {
-                return urls.size();
-            }
-
-            @Override
-            public String getItem(int position) {
-                return urls.get(position);
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return position;
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                if (mColumnWidthChanged && mColumnWidth > 0) {
+                    int totalSpace;
+                    if (getOrientation() == VERTICAL) {
+                        totalSpace = getWidth() - getPaddingRight() - getPaddingLeft();
+                    } else {
+                        totalSpace = getHeight() - getPaddingTop() - getPaddingBottom();
+                    }
+                    int spanCount = Math.max(1, totalSpace / mColumnWidth);
+                    setSpanCount(spanCount);
+                    mColumnWidthChanged = false;
+                }
+                super.onLayoutChildren(recycler, state);
             }
         }
-
-        public class SquaredImageView extends ImageView {
-            public SquaredImageView(Context context) {
-                super(context);
-            }
-
-            public SquaredImageView(Context context, AttributeSet attrs) {
-                super(context, attrs);
-            }
-
-            public SquaredImageView(Context context, AttributeSet attrs, int defStyle) {
-                super(context, attrs, defStyle);
-            }
-
-            @Override
-            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-                setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
-            }
-        }
-        */
     }
 }
