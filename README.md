@@ -1,5 +1,15 @@
 # PopularMovies-Udacity-
 
+May 14, 2016 [Sat]
+
+- moved MovieFragment to a new java file
+- added FetchMovieDataTask (which extends AysncTask [not optimal way of fetching data in the background, but will change later]) 
+    to fetch data in the background
+- implemented doInBackground method for the FetchMovieDataTask class
+- used Uribuilder to build the URL paths to add parameters for sorting the movies (either by popular or by top_rated)
+- added getMoviePostersURlsfromJson to parse the Json string received from themoviedb.org 
+- implemented onPostExecute (in FetchMovieDataTask class) to update the MovieAdapter with the data from themoviedb.org database
+
 May 12, 2016 [Thu]]
 
 - added MovieViewHolder, which extends RecyclerView.ViewHolder
