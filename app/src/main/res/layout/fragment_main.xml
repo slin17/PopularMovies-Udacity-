@@ -1,4 +1,12 @@
-<com.example.android.popularmovies.AutofitRecyclerView
+<!--<com.example.android.popularmovies.AutofitRecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/movie_posters_recyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"/>
+-->
+<android.support.v7.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/movie_posters_recyclerView"
