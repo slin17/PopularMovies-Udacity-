@@ -1,4 +1,12 @@
 # PopularMovies-Udacity-
+May 15, 2016 [Sun]
+
+- changed the parseJson method to include movie title, overview, release date and user ratings when parsing Json received from themoviedb.org
+- implemented DetailActivity class, which receives explicit intent call from MainActivity to display   
+	movie title, poster, overview, release date and user ratings
+- implemented SettingsActivity class for MainActivity so that the user can choose to sort movies either by popular or by top rated
+- created updateMovieList() method that calls PreferenceManger.getDefaultSharedPreferences(context) to get an instance of SharedPreferences 
+- supplied the "sort_by" key to SharedPreferences instance to get what the user has chosen as a preferred way of sorting movies
 
 May 14, 2016 [Sat]
 
