@@ -3,14 +3,11 @@ package com.example.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -24,18 +21,10 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by SawS on 5/12/16.
@@ -44,6 +33,9 @@ public class MovieFragment extends Fragment {
 
     private MoviesAdapter mPosterAdapter;
     private RecyclerView mRecyclerView;
+    private Map<String, ArrayList<String>> movieIdToVideos;
+    private final String MOVIE_INFO = "movie info";
+    private final String VIDEO_INFO = "video info";
 
     public MovieFragment() {
     }
@@ -81,26 +73,31 @@ public class MovieFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        //String[] testMovieInfo = {"","http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg","","",""};
-
         List<String[]> testPosters = new ArrayList<String[]>();
 
-        /*for (int i = 0; i< 10; i++){
-            testPosters.add(testMovieInfo);
-        }*/
-
+        movieIdToVideos = new HashMap<String, ArrayList<String>>();
         mPosterAdapter = new MoviesAdapter(getActivity().getApplicationContext(),testPosters);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.movie_posters_recyclerView);
         mRecyclerView.setLayoutManager(new GridAutofitLayoutManager(getActivity().getApplicationContext(),400));
+        //A LayoutManager is responsible for measuring and positioning item views within a RecyclerView
+        // as well as determining the policy for when to recycle item views that are no longer visible to the user.
         mRecyclerView.setAdapter(mPosterAdapter);
+        //Add an RecyclerView.OnItemTouchListener to intercept touch events
+        // before they are dispatched to child views or this view's standard scrolling behavior.
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         // TODO Handle item click
+                        Bundle extras = new Bundle();
+
                         String[] movieInfo = mPosterAdapter.getItem(position);
-                        //Toast.makeText(getActivity(), String.valueOf(position), Toast.LENGTH_SHORT).show();
+                        extras.putStringArray(MOVIE_INFO, movieInfo);
+//                        Toast.makeText(getActivity(), String.valueOf(movieIdToVideos.size()), Toast.LENGTH_SHORT).show();
+
+                        ArrayList<String> videoInfo = movieIdToVideos.get(movieInfo[0]);
+                        extras.putStringArrayList(VIDEO_INFO, videoInfo);
                         Intent intent = new Intent(getActivity(),DetailActivity.class)
-                                .putExtra(Intent.EXTRA_TEXT,movieInfo);
+                                .putExtras(extras);
                         startActivity(intent);
 
                     }
@@ -110,7 +107,7 @@ public class MovieFragment extends Fragment {
     }
 
     private void updateMovieList() {
-        FetchMovieDataTask movieDataTask = new FetchMovieDataTask();
+        FetchMovieDataTask movieDataTask = new FetchMovieDataTask(getActivity(), mPosterAdapter, movieIdToVideos);
         //get an instance of sharedpreferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         //to retrieve the info we want, we use the key "sort_by"
@@ -124,135 +121,6 @@ public class MovieFragment extends Fragment {
         updateMovieList();
     }
 
-    public class FetchMovieDataTask extends AsyncTask<String,Void,List<String[]>> {
-        private final String LOG_TAG = FetchMovieDataTask.class.getSimpleName();
-
-        @Override
-        protected List<String[]> doInBackground (String... params){
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            /*String sortType;
-            if (params[0].equals("popular")){
-                sortType = "popular";
-            } else {sortType = "top_rated";}
-            */
-
-            // Will contain the raw JSON response as a string.
-            String movieListJsonStr = null;
-
-            try {
-                // Construct the URL for themoviedb query
-                //URL url = new URL("http://api.themoviedb.org/3/movie/popular?api_key=b9c41728fe6750764cf6d3c12b0d7e7a");
-
-                final String FETCHMOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
-                final String APPID_PARAM = "api_key";
-                Uri builtUri = Uri.parse(FETCHMOVIE_BASE_URL).buildUpon()
-                        .appendPath(params[0])
-                        .appendQueryParameter(APPID_PARAM,BuildConfig.THE_MOVIE_DB_API_KEY)
-                        .build();
-
-                URL url = new URL(builtUri.toString());
-                //Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                movieListJsonStr = buffer.toString();
-                //Log.v(LOG_TAG, "movieListJsonStr "+ movieListJsonStr);
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
-                return null;
-            } finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
-            }
-            try {
-                return getMovieInfofromJson(movieListJsonStr);
-            } catch (JSONException e){
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<String[]> results) {
-            if (results != null){
-                mPosterAdapter.setMovieList(results);
-                //mForecastAdapter.addAll(results); for API level above 10, current API lvl = 10
-            }
-        }
-
-        private List<String[]> getMovieInfofromJson(String movieListJsonStr)
-                throws JSONException {
-
-            final String TMD_LIST = "results";
-            final String TMD_ORIGINAL_TITLE = "original_title";
-            final String TMD_POSTER = "poster_path";
-            final String TMD_OVERVIEW = "overview";
-            final String TMD_RATING = "vote_average";
-            final String TMD_DATE = "release_date";
-            final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w185/";
-
-            JSONObject movieJson = new JSONObject(movieListJsonStr);
-            JSONArray resultsArray = movieJson.getJSONArray(TMD_LIST);
-
-            List<String[]> resultArrList = new ArrayList<String[]>();
-            for (int i = 0; i < resultsArray.length(); i++) {
-                String rawPosterPath = resultsArray.getJSONObject(i).getString(TMD_POSTER);
-                String originalTitle = resultsArray.getJSONObject(i).getString(TMD_ORIGINAL_TITLE);
-                String posterPath = POSTER_BASE_URL.concat(rawPosterPath.substring(1));
-                String overView = resultsArray.getJSONObject(i).getString(TMD_OVERVIEW);
-                String rating = resultsArray.getJSONObject(i).getString(TMD_RATING);
-                String date = resultsArray.getJSONObject(i).getString(TMD_DATE);
-                String[] movieInfo = { originalTitle,
-                        posterPath,
-                        overView,
-                        rating,
-                        date };
-                resultArrList.add(movieInfo);
-            }
-
-            //String[] resultStrs = new String[resultArrList.size()];
-            //resultStrs = resultArrList.toArray(resultStrs);
-            return  resultArrList;
-        }
-    }
 
     public static class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
         private OnItemClickListener mListener;
@@ -295,6 +163,11 @@ public class MovieFragment extends Fragment {
         public ImageView imageView;
 
         public MovieViewHolder(View itemView) {
+            //Your code might call findViewById() frequently during the scrolling of ListView, which can slow down performance
+            // Even when the Adapter returns an inflated view for recycling, you still need to look up the elements and update them.
+            //Holder design pattern is used for View caching - Holder (arbitrary) object holds child widgets of each row and
+            // when row is out of View then findViewById() won't be called but View
+            // will be recycled and widgets will be obtained from Holder.
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.movie_posters_imageView);
         }
@@ -325,13 +198,17 @@ public class MovieFragment extends Fragment {
         @Override
         public void onBindViewHolder(MovieViewHolder holder, int position) {
             //binding viewholders to the data from the model layer
-            String url = mMovieList.get(position)[1];
+            String url = mMovieList.get(position)[2];
 
             // This is how we use Picasso to load images from the internet.
             Picasso.with(mContext)
                     .load(url)
                     .placeholder(R.color.loadingColor)
                     .into(holder.imageView);
+        }
+
+        public void clear(){
+            mMovieList.clear();
         }
 
         @Override

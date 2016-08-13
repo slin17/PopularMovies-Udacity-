@@ -12,4 +12,8 @@
     <string name="pref_sort_key" translatable="false">sort_by</string>
     <string name="pref_sort_popular" translatable="false">popular</string>
     <string name="pref_sort_top_rated" translatable="false">top_rated</string>
+
+    <string name="detail_release_date">Release Date:</string>
+    <string name="detail_user_ratings">User Ratings: </string>
+    <string name="detail_trailers">Trailers and Videos</string>
 </resources>

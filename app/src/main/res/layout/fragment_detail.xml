@@ -2,7 +2,7 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="com.example.android.popularmovies.DetailActivity$PlaceholderFragment">
+            tools:context=".DetailActivity$DetailFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,7 +47,15 @@
                 android:layout_weight="1">
 
                 <TextView
+                    android:id="@+id/detail_date_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:text="@string/detail_release_date"/>
+
+                <TextView
                     android:id="@+id/detail_date"
+                    android:layout_below="@id/detail_date_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="30dp"/>
@@ -69,6 +77,37 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textSize="17dp"
+            android:text="@string/detail_trailers"
+            android:paddingLeft="10dp"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ListView
+                android:id="@+id/detail_listview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </ListView>
+
+        </FrameLayout>
+
 
 
     </LinearLayout>
