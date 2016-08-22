@@ -66,6 +66,15 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/detail_date"
                     android:textSize="15dp"/>
+
+                <Button
+                    android:id="@+id/detail_favorite"
+                    android:layout_below = "@id/detail_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="10dp"
+                    android:text="@string/detail_favorite"
+                    />
             </RelativeLayout>
 
         </LinearLayout>

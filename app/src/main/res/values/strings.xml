@@ -16,4 +16,6 @@
     <string name="detail_release_date">Release Date:</string>
     <string name="detail_user_ratings">User Ratings: </string>
     <string name="detail_trailers">Trailers and Videos</string>
+    <string name="detail_favorite">Mark as Favorites</string>
+    <string name="action_remove_favorite">Remove From Favorites</string>
 </resources>

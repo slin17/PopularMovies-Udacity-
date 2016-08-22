@@ -12,7 +12,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 2;
 
-    static final String DATABASE_NAME = "movie_collection.db";
+    public static final String DATABASE_NAME = "movie_collection.db";
 
     public MovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -20,19 +20,20 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE" + MovieEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                 MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                MovieEntry.COLUMN_MOVIE_ID + "INTEGER NOT NULL UNIQUE, " +
-                MovieEntry.COLUMN_TITLE + "TEXT NOT NULL, " +
-                MovieEntry.COLUMN_POSTER_PATH + "TEXT NOT NULL, " +
-                MovieEntry.COLUMN_OVERVIEW + "TEXT NOT NULL, " +
-                MovieEntry.COLUMN_RATINGS + "REAL NOT NULL, " +
-                MovieEntry.COLUMN_DATE + "TEXT NOT NULL);";
+                MovieEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL UNIQUE, " +
+                MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_RATINGS + " REAL NOT NULL, " +
+                MovieEntry.COLUMN_DATE + " TEXT NOT NULL);";
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        // TODO: Alter Table, instead of dropping Table
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
